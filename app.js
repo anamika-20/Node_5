@@ -1,40 +1,29 @@
-// app.js
 import express from "express";
-import urlencoded from "body-parser";
+import bodyParser from "body-parser";
+import path from "path";
+
+import * as HomeController from "./controllers/HomeController.js";
+import * as UsersController from "./controllers/UsersController.js";
+import * as CreateController from "./controllers/CreateController.js";
+import * as NotFoundController from "./controllers/NotFoundController.js";
+import { fileURLToPath } from "url";
+
 const app = express();
 const port = 3000;
-// import { db } from "./db.js";
-// const db = require("./db.js");
-// Importing routes
-import indexRoute from "./routes/index.js";
-import userRoute from "./routes/users.js";
-import createRoute from "./routes/create.js";
-import notFoundRoute from "./routes/notFound.js";
-import mysql from "mysql2";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Middleware
-app.use(urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
-// Create a connection
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "node_assignment_5",
-});
-
-// Connect to MySQL
-db.connect((err) => {
-  if (err) {
-    throw err;
-  }
-  console.log("MySQL Connected...");
-});
-
-// Routes
-app.use("/", indexRoute);
-app.use("/users", userRoute);
-app.use("/create", createRoute);
-app.use(notFoundRoute);
+// Routes for controllers
+app.get("/", HomeController.index);
+app.get("/users", UsersController.index);
+app.get("/create", CreateController.index);
+app.post("/add", CreateController.add);
+app.use(NotFoundController.index);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
